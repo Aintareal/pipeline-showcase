@@ -1,0 +1,8 @@
+# Postman — never commit a filled-in environment
+postman/*.postman_environment.json
+!postman/*.example.postman_environment.json
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/

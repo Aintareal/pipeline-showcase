@@ -1,0 +1,17 @@
+bundle:
+  name: pipeline-showcase
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    default: portfolio_demo
+  schema:
+    default: orders
+
+targets:
+  demo:
+    mode: production        # NOT development — dev mode force-pauses triggers on deploy
+    workspace:
+      host: https://dbc-306ae7cd-5ee4.cloud.databricks.com
