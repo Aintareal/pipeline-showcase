@@ -16,7 +16,7 @@ spark.sql(f"""
 CREATE TABLE IF NOT EXISTS {TBL_SILVER} (
   order_sk BIGINT GENERATED ALWAYS AS IDENTITY,
   order_id STRING, customer_id STRING, item_name STRING, quantity INT, unit_price DOUBLE,
-  order_date DATE, created_time TIMESTAMP, record_hash STRING, version_id STRING,
+  order_date TIMESTAMP, created_time TIMESTAMP, record_hash STRING, version_id STRING,
   effective_start_dt TIMESTAMP, effective_end_dt TIMESTAMP, is_current BOOLEAN
 ) USING DELTA
 """)
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS {TBL_SILVER} (
 spark.sql(f"""
 CREATE TABLE IF NOT EXISTS {TBL_SILVER_EVENTS} (
   order_id STRING, customer_id STRING, item_name STRING, quantity INT, unit_price DOUBLE,
-  order_date DATE, created_time TIMESTAMP, record_hash STRING, version_id STRING, event_ts TIMESTAMP
+  order_date TIMESTAMP, created_time TIMESTAMP, record_hash STRING, version_id STRING, event_ts TIMESTAMP
 ) USING DELTA
 """)
 
@@ -95,7 +95,7 @@ def process_batch(microbatch_df, batch_id):
     SELECT cur.version_id AS join_version_id, 'close' AS action,
            CAST(NULL AS STRING) AS order_id, CAST(NULL AS STRING) AS customer_id,
            CAST(NULL AS STRING) AS item_name, CAST(NULL AS INT) AS quantity,
-           CAST(NULL AS DOUBLE) AS unit_price, CAST(NULL AS DATE) AS order_date,
+           CAST(NULL AS DOUBLE) AS unit_price, CAST(NULL AS TIMESTAMP) AS order_date,
            CAST(NULL AS TIMESTAMP) AS created_time, CAST(NULL AS STRING) AS record_hash,
            current_timestamp() AS effective_start_dt, current_timestamp() AS effective_end_dt,
            CAST(NULL AS BOOLEAN) AS is_current
