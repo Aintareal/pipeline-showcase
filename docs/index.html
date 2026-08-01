@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>pipeline-showcase — Orders Dashboard</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <header>
+    <h1>Orders Pipeline — Live Dashboard</h1>
+    <span id="freshness-badge" class="badge">Loading…</span>
+    <button id="refresh-btn">Refresh now</button>
+  </header>
+
+  <section id="stat-tiles" class="tile-row"></section>
+
+  <section class="trend-row">
+    <div class="card"><h2>Hourly Volume — Last 24h</h2><canvas id="hourly-chart"></canvas></div>
+    <div class="card"><h2>Daily Volume — All-Time</h2><canvas id="daily-chart"></canvas></div>
+  </section>
+
+  <section class="card">
+    <h2>Top 5 Items</h2>
+    <canvas id="leaderboard-chart"></canvas>
+  </section>
+
+  <section class="card">
+    <h2>SCD2: Active vs. Superseded Silver Rows</h2>
+    <p class="caption">Each order_id keeps full history in silver; only the active (current) version feeds gold aggregates.</p>
+    <canvas id="scd2-chart"></canvas>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>

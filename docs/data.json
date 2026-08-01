@@ -1,0 +1,11 @@
+{
+  "generated_at": null,
+  "summary": {
+    "order_count_cumulative": 0, "order_count_rolling_24h": 0,
+    "total_amount_cumulative": 0, "avg_order_value_cumulative": 0,
+    "rejection_count_cumulative": 0, "rejection_rate_cumulative": 0,
+    "rejection_count_rolling_24h": 0, "rejection_rate_rolling_24h": 0
+  },
+  "top_items": [], "hourly_volume_24h": [], "daily_volume_all_time": [],
+  "scd2": {"active_rows": 0, "superseded_rows": 0}
+}
