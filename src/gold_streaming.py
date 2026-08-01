@@ -26,13 +26,13 @@ WATERMARK = "2 hours"
 
 def run():
     events = (spark.readStream.table(TBL_SILVER_EVENTS)
-              .withWatermark("event_ts", WATERMARK))
+              .withWatermark("order_date", WATERMARK))
 
     def upsert_hourly(batch_df, batch_id):
         batch_df.createOrReplaceTempView("hourly_batch")
         spark.sql(f"""
         MERGE INTO {TBL_GOLD_HOURLY} t
-        USING (SELECT window.start AS hour, count(*) AS order_count FROM hourly_batch GROUP BY window.start) s
+        USING (SELECT window.start AS hour, window_count AS order_count FROM hourly_batch) s
         ON t.hour = s.hour
         WHEN MATCHED THEN UPDATE SET t.order_count = s.order_count
         WHEN NOT MATCHED THEN INSERT (hour, order_count) VALUES (s.hour, s.order_count)
@@ -40,9 +40,9 @@ def run():
         # prune anything older than the rolling window — cheap periodic cleanup, not itself streaming state
         spark.sql(f"DELETE FROM {TBL_GOLD_HOURLY} WHERE hour < current_timestamp() - INTERVAL 24 HOURS")
 
-    (events.withWatermark("event_ts", WATERMARK)
-     .groupBy(window("event_ts", "1 hour"))
-     .agg(count("*").alias("_"))
+    (events.withWatermark("order_date", WATERMARK)
+     .groupBy(window("order_date", "1 hour"))
+     .agg(count("*").alias("window_count"))
      .writeStream
      .option("checkpointLocation", f"{CHECKPOINT_GOLD}/hourly")
      .trigger(availableNow=True)
@@ -53,15 +53,15 @@ def run():
         batch_df.createOrReplaceTempView("daily_batch")
         spark.sql(f"""
         MERGE INTO {TBL_GOLD_DAILY} t
-        USING (SELECT CAST(window.start AS DATE) AS day, count(*) AS order_count FROM daily_batch GROUP BY window.start) s
+        USING (SELECT CAST(window.start AS DATE) AS day, window_count AS order_count FROM daily_batch) s
         ON t.day = s.day
         WHEN MATCHED THEN UPDATE SET t.order_count = s.order_count
         WHEN NOT MATCHED THEN INSERT (day, order_count) VALUES (s.day, s.order_count)
         """)
 
-    (events.withWatermark("event_ts", WATERMARK)
-     .groupBy(window("event_ts", "1 day"))
-     .agg(count("*").alias("_"))
+    (events.withWatermark("order_date", WATERMARK)
+     .groupBy(window("order_date", "1 day"))
+     .agg(count("*").alias("window_count"))
      .writeStream
      .option("checkpointLocation", f"{CHECKPOINT_GOLD}/daily")
      .trigger(availableNow=True)
