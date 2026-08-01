@@ -55,9 +55,6 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.collectionVariables.set('filename', 'single-dup-exact-' + pm.variables.replaceIn('{{$timestamp}}') + '-' + pm.variables.replaceIn('{{$guid}}') + '.json');",
-                  "// ORD-10001's seed order_date is 'now - (24*3+3) hours' at seed-generation time (see scripts/generate_seed_data.py hours_ago). Recomputed relative to send-time here so this never goes stale.",
-                  "const ord10001OrderDate = new Date(Date.now() - (24 * 3 + 3) * 60 * 60 * 1000).toISOString().replace(/\\.\\d+Z$/, 'Z');",
-                  "pm.variables.set('ord10001OrderDate', ord10001OrderDate);",
                   "pm.variables.set('nowIso', new Date().toISOString().replace(/\\.\\d+Z$/, 'Z'));"
                 ]
               }
@@ -70,10 +67,11 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"order_id\":\"ORD-10001\",\"customer_id\":\"CUST-1001\",\"item_name\":\"Widget A\",\"quantity\":2,\"unit_price\":12.50,\"order_date\":\"{{ord10001OrderDate}}\",\"created_time\":\"{{nowIso}}\"}",
+              "raw": "{\"order_id\":\"ORD-10001\",\"customer_id\":\"CUST-1001\",\"item_name\":\"Widget A\",\"quantity\":2,\"unit_price\":12.50,\"order_date\":\"<<PASTE order_date FROM scripts/seed_files/seed-ORD-10001.json HERE>>\",\"created_time\":\"{{nowIso}}\"}",
               "options": { "raw": { "language": "json" } }
             },
-            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false"
+            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false",
+            "description": "Before running this request, open scripts/seed_files/seed-ORD-10001.json (regenerate it first via `python scripts/generate_seed_data.py` if needed) and paste its exact `order_date` value here, replacing the placeholder. This must byte-match the already-ingested seed row for the no-op/changed-duplicate scenarios to work correctly."
           },
           "response": []
         },
@@ -87,8 +85,6 @@
                 "exec": [
                   "pm.collectionVariables.set('filename', 'single-dup-changed-' + pm.variables.replaceIn('{{$timestamp}}') + '-' + pm.variables.replaceIn('{{$guid}}') + '.json');",
                   "// Same ORD-10001 identity/order_date as the exact-duplicate request, but quantity changed 2 -> 5 to force a new SCD2 version.",
-                  "const ord10001OrderDate = new Date(Date.now() - (24 * 3 + 3) * 60 * 60 * 1000).toISOString().replace(/\\.\\d+Z$/, 'Z');",
-                  "pm.variables.set('ord10001OrderDate', ord10001OrderDate);",
                   "pm.variables.set('nowIso', new Date().toISOString().replace(/\\.\\d+Z$/, 'Z'));"
                 ]
               }
@@ -101,10 +97,11 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"order_id\":\"ORD-10001\",\"customer_id\":\"CUST-1001\",\"item_name\":\"Widget A\",\"quantity\":5,\"unit_price\":12.50,\"order_date\":\"{{ord10001OrderDate}}\",\"created_time\":\"{{nowIso}}\"}",
+              "raw": "{\"order_id\":\"ORD-10001\",\"customer_id\":\"CUST-1001\",\"item_name\":\"Widget A\",\"quantity\":5,\"unit_price\":12.50,\"order_date\":\"<<PASTE order_date FROM scripts/seed_files/seed-ORD-10001.json HERE>>\",\"created_time\":\"{{nowIso}}\"}",
               "options": { "raw": { "language": "json" } }
             },
-            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false"
+            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false",
+            "description": "Before running this request, open scripts/seed_files/seed-ORD-10001.json (regenerate it first via `python scripts/generate_seed_data.py` if needed) and paste its exact `order_date` value here, replacing the placeholder. This must byte-match the already-ingested seed row for the no-op/changed-duplicate scenarios to work correctly."
           },
           "response": []
         },
@@ -264,8 +261,6 @@
                 "exec": [
                   "pm.collectionVariables.set('filename', 'batch-mixed-' + pm.variables.replaceIn('{{$timestamp}}') + '-' + pm.variables.replaceIn('{{$guid}}') + '.json');",
                   "// Third line reuses ORD-10001 with a changed quantity to prove the batch/NDJSON path hits the same SCD2 logic as the single-object path.",
-                  "const ord10001OrderDate = new Date(Date.now() - (24 * 3 + 3) * 60 * 60 * 1000).toISOString().replace(/\\.\\d+Z$/, 'Z');",
-                  "pm.variables.set('ord10001OrderDate', ord10001OrderDate);",
                   "pm.variables.set('nowIso', new Date().toISOString().replace(/\\.\\d+Z$/, 'Z'));"
                 ]
               }
@@ -278,10 +273,11 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"order_id\":\"ORD-90013\",\"customer_id\":\"CUST-3004\",\"item_name\":\"Widget A\",\"quantity\":3,\"unit_price\":12.50,\"order_date\":\"{{nowIso}}\",\"created_time\":\"{{nowIso}}\"}\n{\"order_id\":\"ORD-90014\",\"customer_id\":\"CUST-3005\",\"item_name\":\"Camp Stove\",\"quantity\":1,\"unit_price\":54.00,\"order_date\":\"{{nowIso}}\",\"created_time\":\"{{nowIso}}\"}\n{\"order_id\":\"ORD-10001\",\"customer_id\":\"CUST-1001\",\"item_name\":\"Widget A\",\"quantity\":7,\"unit_price\":12.50,\"order_date\":\"{{ord10001OrderDate}}\",\"created_time\":\"{{nowIso}}\"}",
+              "raw": "{\"order_id\":\"ORD-90013\",\"customer_id\":\"CUST-3004\",\"item_name\":\"Widget A\",\"quantity\":3,\"unit_price\":12.50,\"order_date\":\"{{nowIso}}\",\"created_time\":\"{{nowIso}}\"}\n{\"order_id\":\"ORD-90014\",\"customer_id\":\"CUST-3005\",\"item_name\":\"Camp Stove\",\"quantity\":1,\"unit_price\":54.00,\"order_date\":\"{{nowIso}}\",\"created_time\":\"{{nowIso}}\"}\n{\"order_id\":\"ORD-10001\",\"customer_id\":\"CUST-1001\",\"item_name\":\"Widget A\",\"quantity\":7,\"unit_price\":12.50,\"order_date\":\"<<PASTE order_date FROM scripts/seed_files/seed-ORD-10001.json HERE>>\",\"created_time\":\"{{nowIso}}\"}",
               "options": { "raw": { "language": "text" } }
             },
-            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false"
+            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false",
+            "description": "Before running this request, open scripts/seed_files/seed-ORD-10001.json (regenerate it first via `python scripts/generate_seed_data.py` if needed) and paste its exact `order_date` value here, replacing the placeholder (third NDJSON line, ORD-10001). This must byte-match the already-ingested seed row for the no-op/changed-duplicate scenarios to work correctly."
           },
           "response": []
         }
