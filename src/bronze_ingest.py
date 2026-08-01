@@ -17,6 +17,7 @@ spark.sql(f"CREATE VOLUME IF NOT EXISTS {CATALOG}.{SCHEMA}.pipeline_internal")
 df = (spark.readStream
       .format("cloudFiles")
       .option("cloudFiles.format", "json")
+      .option("cloudFiles.inferColumnTypes", "true")
       .option("cloudFiles.schemaLocation", SCHEMA_LOCATION_BRONZE)
       .option("cloudFiles.schemaEvolutionMode", "addNewColumns")
       .load(INBOUND_VOLUME))

@@ -23,8 +23,8 @@ function renderTiles(d) {
   const tiles = [
     ['Total Orders', s.order_count_cumulative],
     ['Orders (24h)', s.order_count_rolling_24h],
-    ['Total Amount', `$${s.total_amount_cumulative.toLocaleString()}`],
-    ['Avg Order Value', `$${s.avg_order_value_cumulative.toFixed(2)}`],
+    ['Total Amount', `$${(s.total_amount_cumulative ?? 0).toLocaleString()}`],
+    ['Avg Order Value', `$${(s.avg_order_value_cumulative ?? 0).toFixed(2)}`],
     ['Most Popular Item', `${topItem.item_name} (${topItem.order_count})`],
     ['Rejection Rate', `${(s.rejection_rate_cumulative * 100).toFixed(1)}%`],
   ];
