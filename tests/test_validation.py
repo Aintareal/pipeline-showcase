@@ -2,7 +2,7 @@ from src.common.validation import validate_order
 
 VALID = {
     "order_id": "ORD-1", "customer_id": "CUST-1", "item_name": "Widget A",
-    "quantity": 2, "unit_price": 12.50, "order_date": "2026-07-25",
+    "quantity": 2, "unit_price": 12.50, "order_date": "2026-07-25T14:00:00Z",
 }
 
 def test_valid_order_passes():
@@ -25,5 +25,5 @@ def test_negative_unit_price_is_invalid_amount_not_invalid_quantity():
     assert validate_order(rec) == "invalid_amount"
 
 def test_future_order_date():
-    rec = {**VALID, "order_date": "2099-01-01"}
+    rec = {**VALID, "order_date": "2099-01-01T00:00:00Z"}
     assert validate_order(rec) == "future_order_date"

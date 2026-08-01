@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime, timezone
 
 REQUIRED_FIELDS = ["order_id", "customer_id", "item_name", "quantity", "unit_price", "order_date"]
 
@@ -10,6 +10,7 @@ def validate_order(record: dict) -> str | None:
         return "invalid_quantity"
     if quantity * record["unit_price"] <= 0:
         return "invalid_amount"
-    if record["order_date"] > date.today().isoformat():
+    now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    if record["order_date"] > now_iso:
         return "future_order_date"
     return None
