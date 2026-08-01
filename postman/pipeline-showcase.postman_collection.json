@@ -1,0 +1,291 @@
+{
+  "info": {
+    "_postman_id": "bc135b44-c1e3-4833-a4e3-5331dd1733a5",
+    "name": "pipeline-showcase",
+    "description": "Orders ingest demo — PUTs JSON/NDJSON files into the Databricks Volume that Auto Loader watches (`{{ORDERS_PATH}}`). Covers new-order, exact-duplicate (no-op), changed-duplicate (new SCD2 version), validation-rejection, and batch scenarios. Requires the companion environment (copy `pipeline-showcase.postman_environment.example.json`, fill in `DATABRICKS_HOST` / `DATABRICKS_TOKEN`, never commit the filled-in copy).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{DATABRICKS_TOKEN}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "filename", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Ingest — Single Order",
+      "item": [
+        {
+          "name": "New order",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('filename', 'single-new-' + pm.variables.replaceIn('{{$timestamp}}') + '-' + pm.variables.replaceIn('{{$guid}}') + '.json');",
+                  "pm.variables.set('nowIso', new Date().toISOString().replace(/\\.\\d+Z$/, 'Z'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"order_id\":\"ORD-90001\",\"customer_id\":\"CUST-2001\",\"item_name\":\"Trail Runner Backpack\",\"quantity\":1,\"unit_price\":89.99,\"order_date\":\"{{nowIso}}\",\"created_time\":\"{{nowIso}}\"}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false"
+          },
+          "response": []
+        },
+        {
+          "name": "Exact duplicate (expect no-op)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('filename', 'single-dup-exact-' + pm.variables.replaceIn('{{$timestamp}}') + '-' + pm.variables.replaceIn('{{$guid}}') + '.json');",
+                  "// ORD-10001's seed order_date is 'now - (24*3+3) hours' at seed-generation time (see scripts/generate_seed_data.py hours_ago). Recomputed relative to send-time here so this never goes stale.",
+                  "const ord10001OrderDate = new Date(Date.now() - (24 * 3 + 3) * 60 * 60 * 1000).toISOString().replace(/\\.\\d+Z$/, 'Z');",
+                  "pm.variables.set('ord10001OrderDate', ord10001OrderDate);",
+                  "pm.variables.set('nowIso', new Date().toISOString().replace(/\\.\\d+Z$/, 'Z'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"order_id\":\"ORD-10001\",\"customer_id\":\"CUST-1001\",\"item_name\":\"Widget A\",\"quantity\":2,\"unit_price\":12.50,\"order_date\":\"{{ord10001OrderDate}}\",\"created_time\":\"{{nowIso}}\"}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false"
+          },
+          "response": []
+        },
+        {
+          "name": "Changed duplicate (expect new SCD2 version)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('filename', 'single-dup-changed-' + pm.variables.replaceIn('{{$timestamp}}') + '-' + pm.variables.replaceIn('{{$guid}}') + '.json');",
+                  "// Same ORD-10001 identity/order_date as the exact-duplicate request, but quantity changed 2 -> 5 to force a new SCD2 version.",
+                  "const ord10001OrderDate = new Date(Date.now() - (24 * 3 + 3) * 60 * 60 * 1000).toISOString().replace(/\\.\\d+Z$/, 'Z');",
+                  "pm.variables.set('ord10001OrderDate', ord10001OrderDate);",
+                  "pm.variables.set('nowIso', new Date().toISOString().replace(/\\.\\d+Z$/, 'Z'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"order_id\":\"ORD-10001\",\"customer_id\":\"CUST-1001\",\"item_name\":\"Widget A\",\"quantity\":5,\"unit_price\":12.50,\"order_date\":\"{{ord10001OrderDate}}\",\"created_time\":\"{{nowIso}}\"}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false"
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid: amount",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('filename', 'single-invalid-amount-' + pm.variables.replaceIn('{{$timestamp}}') + '-' + pm.variables.replaceIn('{{$guid}}') + '.json');",
+                  "pm.variables.set('nowIso', new Date().toISOString().replace(/\\.\\d+Z$/, 'Z'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"order_id\":\"ORD-90004\",\"customer_id\":\"CUST-2001\",\"item_name\":\"Trail Runner Backpack\",\"quantity\":1,\"unit_price\":-10.00,\"order_date\":\"{{nowIso}}\",\"created_time\":\"{{nowIso}}\"}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false"
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid: quantity",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('filename', 'single-invalid-quantity-' + pm.variables.replaceIn('{{$timestamp}}') + '-' + pm.variables.replaceIn('{{$guid}}') + '.json');",
+                  "pm.variables.set('nowIso', new Date().toISOString().replace(/\\.\\d+Z$/, 'Z'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"order_id\":\"ORD-90005\",\"customer_id\":\"CUST-2001\",\"item_name\":\"Trail Runner Backpack\",\"quantity\":0,\"unit_price\":89.99,\"order_date\":\"{{nowIso}}\",\"created_time\":\"{{nowIso}}\"}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false"
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid: future date",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('filename', 'single-invalid-futuredate-' + pm.variables.replaceIn('{{$timestamp}}') + '-' + pm.variables.replaceIn('{{$guid}}') + '.json');",
+                  "const f = new Date(); f.setFullYear(f.getFullYear()+1); pm.variables.set('futureOrderDate', f.toISOString().replace(/\\.\\d+Z$/, 'Z'));",
+                  "pm.variables.set('nowIso', new Date().toISOString().replace(/\\.\\d+Z$/, 'Z'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"order_id\":\"ORD-90006\",\"customer_id\":\"CUST-2001\",\"item_name\":\"Trail Runner Backpack\",\"quantity\":1,\"unit_price\":89.99,\"order_date\":\"{{futureOrderDate}}\",\"created_time\":\"{{nowIso}}\"}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false"
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid: null required field",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('filename', 'single-invalid-nullfield-' + pm.variables.replaceIn('{{$timestamp}}') + '-' + pm.variables.replaceIn('{{$guid}}') + '.json');",
+                  "pm.variables.set('nowIso', new Date().toISOString().replace(/\\.\\d+Z$/, 'Z'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"order_id\":\"ORD-90007\",\"customer_id\":null,\"item_name\":\"Trail Runner Backpack\",\"quantity\":1,\"unit_price\":89.99,\"order_date\":\"{{nowIso}}\",\"created_time\":\"{{nowIso}}\"}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Ingest — Batch Orders",
+      "item": [
+        {
+          "name": "Batch — new orders",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('filename', 'batch-new-' + pm.variables.replaceIn('{{$timestamp}}') + '-' + pm.variables.replaceIn('{{$guid}}') + '.json');",
+                  "pm.variables.set('nowIso', new Date().toISOString().replace(/\\.\\d+Z$/, 'Z'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-ndjson" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"order_id\":\"ORD-90010\",\"customer_id\":\"CUST-3001\",\"item_name\":\"Widget A\",\"quantity\":4,\"unit_price\":12.50,\"order_date\":\"{{nowIso}}\",\"created_time\":\"{{nowIso}}\"}\n{\"order_id\":\"ORD-90011\",\"customer_id\":\"CUST-3002\",\"item_name\":\"Camp Stove\",\"quantity\":2,\"unit_price\":54.00,\"order_date\":\"{{nowIso}}\",\"created_time\":\"{{nowIso}}\"}\n{\"order_id\":\"ORD-90012\",\"customer_id\":\"CUST-3003\",\"item_name\":\"Trail Runner Backpack\",\"quantity\":1,\"unit_price\":89.99,\"order_date\":\"{{nowIso}}\",\"created_time\":\"{{nowIso}}\"}",
+              "options": { "raw": { "language": "text" } }
+            },
+            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false"
+          },
+          "response": []
+        },
+        {
+          "name": "Batch — mixed (new + changed-duplicate)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('filename', 'batch-mixed-' + pm.variables.replaceIn('{{$timestamp}}') + '-' + pm.variables.replaceIn('{{$guid}}') + '.json');",
+                  "// Third line reuses ORD-10001 with a changed quantity to prove the batch/NDJSON path hits the same SCD2 logic as the single-object path.",
+                  "const ord10001OrderDate = new Date(Date.now() - (24 * 3 + 3) * 60 * 60 * 1000).toISOString().replace(/\\.\\d+Z$/, 'Z');",
+                  "pm.variables.set('ord10001OrderDate', ord10001OrderDate);",
+                  "pm.variables.set('nowIso', new Date().toISOString().replace(/\\.\\d+Z$/, 'Z'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-ndjson" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"order_id\":\"ORD-90013\",\"customer_id\":\"CUST-3004\",\"item_name\":\"Widget A\",\"quantity\":3,\"unit_price\":12.50,\"order_date\":\"{{nowIso}}\",\"created_time\":\"{{nowIso}}\"}\n{\"order_id\":\"ORD-90014\",\"customer_id\":\"CUST-3005\",\"item_name\":\"Camp Stove\",\"quantity\":1,\"unit_price\":54.00,\"order_date\":\"{{nowIso}}\",\"created_time\":\"{{nowIso}}\"}\n{\"order_id\":\"ORD-10001\",\"customer_id\":\"CUST-1001\",\"item_name\":\"Widget A\",\"quantity\":7,\"unit_price\":12.50,\"order_date\":\"{{ord10001OrderDate}}\",\"created_time\":\"{{nowIso}}\"}",
+              "options": { "raw": { "language": "text" } }
+            },
+            "url": "{{DATABRICKS_HOST}}/api/2.0/fs/files{{ORDERS_PATH}}/{{filename}}?overwrite=false"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
