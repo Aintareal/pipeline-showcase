@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession, Window
 from pyspark.sql.functions import (
-    col, udf, current_timestamp, row_number, desc, lit, to_json, struct,
+    col, udf, current_timestamp, row_number, desc, to_json, struct,
 )
 from pyspark.sql.types import StringType
 from src.common.hashing import compute_record_hash, compute_version_id
@@ -37,7 +37,25 @@ CREATE TABLE IF NOT EXISTS {TBL_REJECTED} (
 
 record_hash_udf = udf(compute_record_hash, StringType())
 version_id_udf = udf(compute_version_id, StringType())
-validate_udf = udf(validate_order, StringType())
+
+
+# validate_order(record: dict) expects a plain dict (record.get(...)) — a
+# pyspark Row (what struct(...) produces at the UDF boundary) does not support
+# .get() and raises PySparkAttributeError. Wrap it so the UDF is called with
+# individual scalar columns and builds the dict itself, without touching
+# validate_order's own signature/contract (src/common/validation.py, Task 2).
+def _validate_order_fields(order_id, customer_id, item_name, quantity, unit_price, order_date):
+    return validate_order({
+        "order_id": order_id,
+        "customer_id": customer_id,
+        "item_name": item_name,
+        "quantity": quantity,
+        "unit_price": unit_price,
+        "order_date": order_date,
+    })
+
+
+validate_udf = udf(_validate_order_fields, StringType())
 
 
 def process_batch(microbatch_df, batch_id):
@@ -45,10 +63,10 @@ def process_batch(microbatch_df, batch_id):
 
     validated = microbatch_df.withColumn(
         "rejection_reason",
-        validate_udf(struct(
+        validate_udf(
             col("order_id"), col("customer_id"), col("item_name"),
             col("quantity"), col("unit_price"), col("order_date"),
-        ))
+        )
     )
 
     bad = validated.filter(col("rejection_reason").isNotNull())
@@ -98,6 +116,14 @@ def process_batch(microbatch_df, batch_id):
     )
     """)
 
+    # Snapshot of every version_id already in silver_orders *before* the MERGE
+    # below mutates it — used after the MERGE to detect the revert/collision
+    # edge case (see comment at new_versions below). Must be captured now: once
+    # the MERGE runs, legitimate new inserts also become present in TBL_SILVER,
+    # so checking post-MERGE would wrongly exclude every real insert too.
+    spark.sql(f"SELECT version_id FROM {TBL_SILVER}") \
+        .createOrReplaceTempView("silver_version_ids_before_merge")
+
     spark.sql(f"""
     MERGE INTO {TBL_SILVER} AS tgt
     USING staged_changes AS src
@@ -113,8 +139,26 @@ def process_batch(microbatch_df, batch_id):
     """)
 
     # Append-only event log powering gold's real streaming aggregation (Task 5) —
-    # only rows that actually became a new current version (excludes true no-op duplicates).
-    new_versions = spark.sql("SELECT * FROM staged_changes WHERE action = 'insert'") \
+    # only rows that actually became a new current version (excludes true no-op
+    # duplicates). Also excludes the documented revert/collision edge case: if a
+    # reverted value's version_id collides with an older *superseded* row's
+    # version_id, the MERGE's "insert" row matches an existing tgt row on
+    # version_id but there is no `WHEN MATCHED AND action='insert'` clause, so it
+    # silently no-ops and no row actually lands in silver_orders. We detect that
+    # by checking against silver_version_ids_before_merge (captured above, prior
+    # to the MERGE): a colliding version_id was already present in silver_orders
+    # before this batch ran, whereas a genuinely new insert's version_id was not.
+    # This keeps the event log from recording a phantom version that was never
+    # actually written, which would otherwise inflate Task 5's streaming
+    # aggregation counts.
+    new_versions = spark.sql("""
+        SELECT sc.* FROM staged_changes sc
+        WHERE sc.action = 'insert'
+          AND NOT EXISTS (
+            SELECT 1 FROM silver_version_ids_before_merge v
+            WHERE v.version_id = sc.join_version_id
+          )
+        """) \
         .drop("action", "effective_start_dt", "effective_end_dt", "is_current") \
         .withColumnRenamed("join_version_id", "version_id") \
         .withColumn("event_ts", current_timestamp())
