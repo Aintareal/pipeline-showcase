@@ -3,6 +3,9 @@ import json
 import requests
 from datetime import datetime, timezone
 from pyspark.sql import SparkSession
+# dbutils is auto-injected in notebooks but NOT in spark_python_task scripts —
+# this SDK shim provides it in both contexts.
+from databricks.sdk.runtime import dbutils
 from src.common.paths import TBL_GOLD_SUMMARY, TBL_GOLD_TOP_ITEMS, TBL_GOLD_HOURLY, TBL_GOLD_DAILY
 
 spark = SparkSession.builder.getOrCreate()
@@ -44,7 +47,7 @@ def build_snapshot() -> dict:
 
 
 def publish(snapshot: dict):
-    pat = dbutils.secrets.get(scope="pipeline-showcase", key="github-pat")  # noqa: F821 (dbutils is injected by Databricks runtime)
+    pat = dbutils.secrets.get(scope="pipeline-showcase", key="github-pat")
     headers = {"Authorization": f"Bearer {pat}", "Accept": "application/vnd.github+json"}
     base_url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{GITHUB_PATH}"
 

@@ -17,6 +17,7 @@ resources:
             client: "2"   # confirm this is still the valid enum at deploy time (`databricks bundle deploy` will error if not)
             dependencies:
               - requests==2.32.3
+              - databricks-sdk
 
       tasks:
         - task_key: bronze_ingest
