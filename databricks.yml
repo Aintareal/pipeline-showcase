@@ -15,3 +15,4 @@ targets:
     mode: production        # NOT development — dev mode force-pauses triggers on deploy
     workspace:
       host: https://dbc-306ae7cd-5ee4.cloud.databricks.com
+      root_path: /Workspace/Users/kennetheneumann@gmail.com/.bundle/${bundle.name}/${bundle.target}
