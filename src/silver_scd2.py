@@ -66,8 +66,9 @@ validate_udf = udf(_validate_order_fields, StringType())
 
 
 def process_batch(microbatch_df, batch_id):
-    microbatch_df.persist()
-
+    # .persist() is not supported on serverless compute (NOT_SUPPORTED_WITH_SERVERLESS) —
+    # microbatch_df is small (one triggered microbatch, not the unbounded stream), so
+    # recomputing its source read the couple of times it's referenced below is cheap.
     validated = microbatch_df.withColumn(
         "rejection_reason",
         validate_udf(
@@ -170,8 +171,6 @@ def process_batch(microbatch_df, batch_id):
         .withColumnRenamed("join_version_id", "version_id") \
         .withColumn("event_ts", current_timestamp())
     new_versions.write.format("delta").mode("append").saveAsTable(TBL_SILVER_EVENTS)
-
-    microbatch_df.unpersist()
 
 
 bronze_stream = spark.readStream.table(TBL_BRONZE)
