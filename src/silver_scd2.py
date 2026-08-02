@@ -1,3 +1,8 @@
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from pyspark.sql import SparkSession, Window
 from pyspark.sql.functions import (
     col, udf, current_timestamp, row_number, desc, to_json, struct,

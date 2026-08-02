@@ -1,3 +1,10 @@
+import os
+import sys
+
+# spark_python_task runs this file directly (exec'd, not imported as a package),
+# so the repo root isn't on sys.path by default — add it before importing `src.*`.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, current_timestamp
 from src.common.paths import (
