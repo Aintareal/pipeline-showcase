@@ -1,9 +1,12 @@
+import inspect
 import os
 import sys
 
-# spark_python_task runs this file directly (exec'd, not imported as a package),
-# so the repo root isn't on sys.path by default — add it before importing `src.*`.
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# spark_python_task execs this file via exec(compile(..., filename, 'exec')) rather
+# than running it as a normal script, so __file__ is never defined. co_filename on the
+# current frame still reflects the real path Databricks compiled, so use that instead.
+_this_file = os.path.abspath(inspect.currentframe().f_code.co_filename)
+sys.path.insert(0, os.path.dirname(os.path.dirname(_this_file)))
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, current_timestamp

@@ -1,7 +1,9 @@
+import inspect
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_this_file = os.path.abspath(inspect.currentframe().f_code.co_filename)
+sys.path.insert(0, os.path.dirname(os.path.dirname(_this_file)))
 
 from pyspark.sql import SparkSession, Window
 from pyspark.sql.functions import (
