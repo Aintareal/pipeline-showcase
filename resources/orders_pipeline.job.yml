@@ -7,9 +7,9 @@ resources:
       trigger:
         pause_status: UNPAUSED
         file_arrival:
-          url: /Volumes/${var.catalog}/${var.schema}/inbound
+          url: /Volumes/${var.catalog}/${var.schema}/inbound/
           min_time_between_triggers_seconds: 60
-          wait_after_last_change_seconds: 15
+          wait_after_last_change_seconds: 65
 
       environments:
         - environment_key: serverless_env
