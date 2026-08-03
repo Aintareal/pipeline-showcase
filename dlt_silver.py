@@ -1,14 +1,36 @@
 from pyspark import pipelines as dp
 from pyspark.sql.functions import udf, col, current_timestamp, to_json, struct
 from pyspark.sql.types import StringType
-from src.common.validation import validate_order
+
+# NOTE: deliberately NOT importing validate_order from src.common.validation here.
+# Confirmed live: the driver can import src.* (Phase 0 finding 8), but a Python UDF's
+# closure is pickled and re-deserialized on WORKER processes, which raised
+# `ModuleNotFoundError: No module named 'src'` — DLT's library-file mechanism doesn't
+# distribute the surrounding src/ package tree to workers the way spark_python_task's
+# full bundle-sync did in V1. src/common/validation.py is kept as the tested, canonical
+# reference (still exercised by tests/test_validation.py) — this is a duplicated copy
+# of the same logic, self-contained in this file so the UDF has no cross-module
+# dependency to resolve on a worker. Keep both in sync if the rule set ever changes.
+from datetime import datetime, timezone
+
+REQUIRED_FIELDS = ["order_id", "customer_id", "item_name", "quantity", "unit_price", "order_date"]
 
 
 def _validate_order_fields(order_id, customer_id, item_name, quantity, unit_price, order_date):
-    return validate_order({
+    record = {
         "order_id": order_id, "customer_id": customer_id, "item_name": item_name,
         "quantity": quantity, "unit_price": unit_price, "order_date": order_date,
-    })
+    }
+    if any(record.get(f) in (None, "") for f in REQUIRED_FIELDS):
+        return "missing_required_field"
+    if not isinstance(quantity, int) or isinstance(quantity, bool) or quantity <= 0:
+        return "invalid_quantity"
+    if quantity * unit_price <= 0:
+        return "invalid_amount"
+    now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    if order_date > now_iso:
+        return "future_order_date"
+    return None
 
 
 validate_udf = udf(_validate_order_fields, StringType())
