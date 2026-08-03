@@ -1,0 +1,13 @@
+resources:
+  pipelines:
+    orders_dlt_pipeline:
+      name: orders-dlt-pipeline
+      catalog: ${var.catalog}
+      target: ${var.schema}
+      serverless: true
+      development: false
+      continuous: false
+      libraries:
+        - file: { path: ../dlt_bronze.py }
+        - file: { path: ../dlt_silver.py }
+        - file: { path: ../dlt_gold.py }
