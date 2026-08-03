@@ -129,7 +129,17 @@ def process_batch(microbatch_df, batch_id):
     # edge case (see comment at new_versions below). Must be captured now: once
     # the MERGE runs, legitimate new inserts also become present in TBL_SILVER,
     # so checking post-MERGE would wrongly exclude every real insert too.
-    spark.sql(f"SELECT version_id FROM {TBL_SILVER}") \
+    #
+    # NOTE: a lazily-evaluated temp view over {TBL_SILVER} here does NOT work —
+    # under Spark Connect (serverless), the view's underlying read isn't resolved
+    # until it's actually consumed below, which happens AFTER the MERGE already
+    # ran. That silently turned this into a post-merge snapshot, making every
+    # legitimate insert look like a version_id collision and get filtered out
+    # entirely (observed live: 0 rows ever reached silver_version_events).
+    # .collect() forces eager execution now, before the MERGE, decoupling the
+    # snapshot from the table's later mutation regardless of when it's read.
+    before_ids = [row["version_id"] for row in spark.sql(f"SELECT version_id FROM {TBL_SILVER}").collect()]
+    spark.createDataFrame([(v,) for v in before_ids], "version_id STRING") \
         .createOrReplaceTempView("silver_version_ids_before_merge")
 
     spark.sql(f"""
