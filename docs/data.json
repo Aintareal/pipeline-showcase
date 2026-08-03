@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-08-03T13:19:18Z",
+  "generated_at": "2026-08-03T13:35:09Z",
   "summary": {
-    "order_count_cumulative": 3,
-    "order_count_rolling_24h": 3,
-    "total_amount_cumulative": 174.99,
-    "avg_order_value_cumulative": 58.330000000000005,
+    "order_count_cumulative": 4,
+    "order_count_rolling_24h": 4,
+    "total_amount_cumulative": 237.49,
+    "avg_order_value_cumulative": 59.3725,
     "rejection_count_cumulative": 3,
-    "rejection_rate_cumulative": 0.5,
+    "rejection_rate_cumulative": 0.4286,
     "rejection_count_rolling_24h": 3,
-    "rejection_rate_rolling_24h": 0.5
+    "rejection_rate_rolling_24h": 0.4286
   },
   "top_items": [
     {
@@ -24,7 +24,7 @@
       "order_count": 2
     },
     {
-      "item_name": "Test Gadget",
+      "item_name": "Test Gizmo",
       "order_count": 1
     },
     {
@@ -50,6 +50,6 @@
   ],
   "scd2": {
     "active_rows": 9,
-    "superseded_rows": 0
+    "superseded_rows": 1
   }
 }
