@@ -1,27 +1,27 @@
 {
-  "generated_at": "2026-08-03T13:43:00Z",
+  "generated_at": "2026-08-03T14:00:57Z",
   "summary": {
-    "order_count_cumulative": 4,
-    "order_count_rolling_24h": 4,
-    "total_amount_cumulative": 237.49,
-    "avg_order_value_cumulative": 59.3725,
-    "rejection_count_cumulative": 3,
-    "rejection_rate_cumulative": 0.4286,
-    "rejection_count_rolling_24h": 3,
-    "rejection_rate_rolling_24h": 0.4286
+    "order_count_cumulative": 9,
+    "order_count_rolling_24h": 9,
+    "total_amount_cumulative": 576.98,
+    "avg_order_value_cumulative": 64.10888888888888,
+    "rejection_count_cumulative": 8,
+    "rejection_rate_cumulative": 0.4706,
+    "rejection_count_rolling_24h": 8,
+    "rejection_rate_rolling_24h": 0.4706
   },
   "top_items": [
     {
       "item_name": "Camp Stove",
-      "order_count": 2
+      "order_count": 4
     },
     {
       "item_name": "Widget A",
-      "order_count": 2
+      "order_count": 4
     },
     {
       "item_name": "Trail Runner Backpack",
-      "order_count": 2
+      "order_count": 3
     },
     {
       "item_name": "Test Gizmo",
@@ -40,16 +40,20 @@
     {
       "hour": "2026-08-03T12:00:00Z",
       "count": 1
+    },
+    {
+      "hour": "2026-08-03T13:00:00Z",
+      "count": 5
     }
   ],
   "daily_volume_all_time": [
     {
       "date": "2026-08-03",
-      "count": 3
+      "count": 8
     }
   ],
   "scd2": {
-    "active_rows": 9,
+    "active_rows": 14,
     "superseded_rows": 1
   }
 }
