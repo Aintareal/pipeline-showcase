@@ -2,33 +2,71 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pipeline-showcase — Orders Dashboard</title>
 <link rel="stylesheet" href="styles.css">
+<script>
+  // Inline + pre-CSS so the correct theme paints on first frame — a toggle
+  // read after CSS load would flash the wrong theme for one frame.
+  (function () {
+    var saved = localStorage.getItem('theme');
+    if (saved === 'light' || saved === 'dark') {
+      document.documentElement.setAttribute('data-theme', saved);
+    }
+  })();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <header>
-    <h1>Orders Pipeline — Live Dashboard</h1>
-    <span id="freshness-badge" class="badge">Loading…</span>
-    <button id="refresh-btn">Refresh now</button>
+    <h1>Orders Pipeline</h1>
+    <span id="freshness-badge" class="badge unknown"><span class="dot"></span><span class="badge-text">Loading…</span></span>
+    <div class="header-actions">
+      <button id="theme-toggle" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="theme-icon-dark">🌙</span><span class="theme-icon-light">☀️</span>
+      </button>
+      <button id="refresh-btn" class="btn">Refresh now</button>
+    </div>
   </header>
 
   <section id="stat-tiles" class="tile-row"></section>
 
   <section class="trend-row">
-    <div class="card"><h2>Hourly Volume — Last 24h</h2><canvas id="hourly-chart"></canvas></div>
-    <div class="card"><h2>Daily Volume — All-Time</h2><canvas id="daily-chart"></canvas></div>
+    <div class="card" data-chart-card="hourly">
+      <div class="card-head">
+        <h2>Hourly Volume <span class="card-subtitle">Last 24h</span></h2>
+        <button class="view-toggle" data-target="hourly">View as table</button>
+      </div>
+      <div class="chart-wrap"><canvas id="hourly-chart"></canvas></div>
+      <div class="table-view" id="hourly-table" hidden></div>
+    </div>
+    <div class="card" data-chart-card="daily">
+      <div class="card-head">
+        <h2>Daily Volume <span class="card-subtitle">All-time</span></h2>
+        <button class="view-toggle" data-target="daily">View as table</button>
+      </div>
+      <div class="chart-wrap"><canvas id="daily-chart"></canvas></div>
+      <div class="table-view" id="daily-table" hidden></div>
+    </div>
   </section>
 
-  <section class="card">
-    <h2>Top 5 Items</h2>
-    <canvas id="leaderboard-chart"></canvas>
+  <section class="card" data-chart-card="leaderboard">
+    <div class="card-head">
+      <h2>Top 5 Items</h2>
+      <button class="view-toggle" data-target="leaderboard">View as table</button>
+    </div>
+    <div class="chart-wrap"><canvas id="leaderboard-chart"></canvas></div>
+    <div class="table-view" id="leaderboard-table" hidden></div>
   </section>
 
-  <section class="card">
-    <h2>SCD2: Active vs. Superseded Silver Rows</h2>
+  <section class="card" data-chart-card="scd2">
+    <div class="card-head">
+      <h2>SCD2: Active vs. Superseded Silver Rows</h2>
+      <button class="view-toggle" data-target="scd2">View as table</button>
+    </div>
     <p class="caption">Each order_id keeps full history in silver; only the active (current) version feeds gold aggregates.</p>
-    <canvas id="scd2-chart"></canvas>
+    <div class="chart-wrap chart-wrap-short"><canvas id="scd2-chart"></canvas></div>
+    <div class="table-view" id="scd2-table" hidden></div>
   </section>
 
   <script src="app.js"></script>
