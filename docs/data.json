@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-08-03T13:05:06Z",
+  "generated_at": "2026-08-03T13:12:34Z",
   "summary": {
     "order_count_cumulative": 3,
     "order_count_rolling_24h": 3,
     "total_amount_cumulative": 174.99,
     "avg_order_value_cumulative": 58.330000000000005,
-    "rejection_count_cumulative": 0,
-    "rejection_rate_cumulative": 0.0,
-    "rejection_count_rolling_24h": 0,
-    "rejection_rate_rolling_24h": 0.0
+    "rejection_count_cumulative": 1,
+    "rejection_rate_cumulative": 0.25,
+    "rejection_count_rolling_24h": 1,
+    "rejection_rate_rolling_24h": 0.25
   },
   "top_items": [
     {
