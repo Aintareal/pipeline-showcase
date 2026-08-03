@@ -49,7 +49,11 @@ def run():
     # aggregation state already holds the full cumulative count for that window
     # across all batches, so each emission is the complete count, not a delta —
     # safe to overwrite on MERGE, which upsert_hourly/upsert_daily already do.
-    (events.withWatermark("order_date", WATERMARK)
+    # `events` (defined above) already carries the watermark — calling
+    # .withWatermark(...) again here re-defines it, which Spark disallows
+    # ("Redefining watermark is disallowed") once two stateful operators (the
+    # hourly and daily aggregations below) branch off the same watermarked source.
+    (events
      .groupBy(window("order_date", "1 hour"))
      .agg(count("*").alias("window_count"))
      .writeStream
@@ -69,7 +73,7 @@ def run():
         WHEN NOT MATCHED THEN INSERT (day, order_count) VALUES (s.day, s.order_count)
         """)
 
-    (events.withWatermark("order_date", WATERMARK)
+    (events
      .groupBy(window("order_date", "1 day"))
      .agg(count("*").alias("window_count"))
      .writeStream
