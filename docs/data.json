@@ -1,23 +1,23 @@
 {
-  "generated_at": "2026-08-03T17:48:14Z",
+  "generated_at": "2026-08-03T18:16:27Z",
   "summary": {
-    "order_count_cumulative": 25,
-    "order_count_rolling_24h": 25,
-    "total_amount_cumulative": 1670.93,
-    "avg_order_value_cumulative": 66.8372,
+    "order_count_cumulative": 28,
+    "order_count_rolling_24h": 28,
+    "total_amount_cumulative": 2181.42,
+    "avg_order_value_cumulative": 77.90785714285714,
     "rejection_count_cumulative": 12,
-    "rejection_rate_cumulative": 0.3243,
+    "rejection_rate_cumulative": 0.3,
     "rejection_count_rolling_24h": 12,
-    "rejection_rate_rolling_24h": 0.3243
+    "rejection_rate_rolling_24h": 0.3
   },
   "top_items": [
     {
       "item_name": "Camp Stove",
-      "order_count": 6
+      "order_count": 7
     },
     {
       "item_name": "Trail Runner Backpack",
-      "order_count": 6
+      "order_count": 7
     },
     {
       "item_name": "Widget A",
@@ -69,7 +69,7 @@
     }
   ],
   "scd2": {
-    "active_rows": 21,
+    "active_rows": 24,
     "superseded_rows": 6
   }
 }
