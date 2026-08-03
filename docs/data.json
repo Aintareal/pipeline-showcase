@@ -1,41 +1,75 @@
 {
-  "generated_at": "2026-08-03T00:20:52Z",
+  "generated_at": "2026-08-03T17:29:26Z",
   "summary": {
-    "order_count_cumulative": 1,
-    "order_count_rolling_24h": 1,
-    "total_amount_cumulative": 45.0,
-    "avg_order_value_cumulative": 45.0,
-    "rejection_count_cumulative": 0,
-    "rejection_rate_cumulative": 0.0,
-    "rejection_count_rolling_24h": 0,
-    "rejection_rate_rolling_24h": 0.0
+    "order_count_cumulative": 24,
+    "order_count_rolling_24h": 24,
+    "total_amount_cumulative": 1580.94,
+    "avg_order_value_cumulative": 65.8725,
+    "rejection_count_cumulative": 12,
+    "rejection_rate_cumulative": 0.3333,
+    "rejection_count_rolling_24h": 12,
+    "rejection_rate_rolling_24h": 0.3333
   },
   "top_items": [
     {
       "item_name": "Camp Stove",
-      "order_count": 2
+      "order_count": 6
     },
     {
       "item_name": "Widget A",
-      "order_count": 2
+      "order_count": 6
     },
     {
       "item_name": "Trail Runner Backpack",
+      "order_count": 5
+    },
+    {
+      "item_name": "Test Gizmo",
       "order_count": 1
     },
     {
       "item_name": "Test Gadget",
       "order_count": 1
-    },
-    {
-      "item_name": "Test Widget",
-      "order_count": 1
     }
   ],
-  "hourly_volume_24h": [],
-  "daily_volume_all_time": [],
+  "hourly_volume_24h": [
+    {
+      "hour": "2026-08-02T22:00:00Z",
+      "count": 1
+    },
+    {
+      "hour": "2026-08-03T00:00:00Z",
+      "count": 3
+    },
+    {
+      "hour": "2026-08-03T12:00:00Z",
+      "count": 1
+    },
+    {
+      "hour": "2026-08-03T13:00:00Z",
+      "count": 5
+    }
+  ],
+  "daily_volume_all_time": [
+    {
+      "date": "2026-07-30",
+      "count": 5
+    },
+    {
+      "date": "2026-07-31",
+      "count": 2
+    },
+    {
+      "date": "2026-08-01",
+      "count": 1
+    },
+    {
+      "date": "2026-08-02",
+      "count": 1
+    }
+  ],
   "scd2": {
-    "active_rows": 7,
-    "superseded_rows": 0
+    "active_rows": 20,
+    "superseded_rows": 6
   }
 }
