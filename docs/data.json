@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-03T00:41:17Z",
+  "generated_at": "2026-08-03T13:05:06Z",
   "summary": {
-    "order_count_cumulative": 2,
-    "order_count_rolling_24h": 2,
-    "total_amount_cumulative": 85.0,
-    "avg_order_value_cumulative": 42.5,
+    "order_count_cumulative": 3,
+    "order_count_rolling_24h": 3,
+    "total_amount_cumulative": 174.99,
+    "avg_order_value_cumulative": 58.330000000000005,
     "rejection_count_cumulative": 0,
     "rejection_rate_cumulative": 0.0,
     "rejection_count_rolling_24h": 0,
@@ -21,7 +21,7 @@
     },
     {
       "item_name": "Trail Runner Backpack",
-      "order_count": 1
+      "order_count": 2
     },
     {
       "item_name": "Test Gadget",
@@ -36,16 +36,20 @@
     {
       "hour": "2026-08-03T00:00:00Z",
       "count": 2
+    },
+    {
+      "hour": "2026-08-03T12:00:00Z",
+      "count": 1
     }
   ],
   "daily_volume_all_time": [
     {
       "date": "2026-08-03",
-      "count": 2
+      "count": 3
     }
   ],
   "scd2": {
-    "active_rows": 8,
+    "active_rows": 9,
     "superseded_rows": 0
   }
 }
