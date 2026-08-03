@@ -1,5 +1,19 @@
 import base64
+import inspect
 import json
+import os
+import sys
+
+# spark_python_task execs this file directly (no __file__, no package context) —
+# now that this is a direct job task entrypoint (V2's gold_and_publish.py orchestrator
+# is gone), it needs its own repo-root sys.path fix rather than inheriting one from
+# an importer.
+try:
+    _this_file = os.path.abspath(__file__)
+except NameError:
+    _this_file = os.path.abspath(inspect.currentframe().f_code.co_filename)
+sys.path.insert(0, os.path.dirname(os.path.dirname(_this_file)))
+
 import requests
 from datetime import datetime, timezone
 from pyspark.sql import SparkSession
