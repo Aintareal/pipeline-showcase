@@ -98,8 +98,7 @@ def process_batch(microbatch_df, batch_id):
                           .filter(col("_rn") == 1).drop("_rn"))
 
     batch_current.createOrReplaceTempView("batch_current")
-    spark.sql(f"""
-    CREATE OR REPLACE TEMP VIEW staged_changes AS
+    staged_changes_lazy = spark.sql(f"""
     SELECT cur.version_id AS join_version_id, 'close' AS action,
            CAST(NULL AS STRING) AS order_id, CAST(NULL AS STRING) AS customer_id,
            CAST(NULL AS STRING) AS item_name, CAST(NULL AS INT) AS quantity,
@@ -123,6 +122,18 @@ def process_batch(microbatch_df, batch_id):
       WHERE cur.order_id = src.order_id AND cur.is_current = true AND cur.record_hash = src.record_hash
     )
     """)
+    # Same Spark Connect / serverless lazy-view gotcha as the before_ids snapshot
+    # below: staged_changes is read TWICE — once by the MERGE, once again later by
+    # new_versions. As a lazy view it would be silently RE-EXECUTED on that second
+    # read, by which point the MERGE has already mutated {TBL_SILVER}, so this
+    # view's own "insert" branch would then see the just-inserted row and
+    # incorrectly exclude it too (this was the actual reason new_versions was
+    # empty, not just the before_ids issue below). Collecting once, now, and
+    # rehydrating as a fixed in-memory-backed DataFrame freezes the result so
+    # both later reads see the identical, correct rows.
+    staged_changes_rows = staged_changes_lazy.collect()
+    spark.createDataFrame(staged_changes_rows, schema=staged_changes_lazy.schema) \
+        .createOrReplaceTempView("staged_changes")
 
     # Snapshot of every version_id already in silver_orders *before* the MERGE
     # below mutates it — used after the MERGE to detect the revert/collision
