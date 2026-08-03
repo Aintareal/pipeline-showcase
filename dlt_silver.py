@@ -52,7 +52,15 @@ def rejected_orders():
 @dp.table(name="silver_orders_staged")
 def silver_orders_staged():
     v = dp.read_stream("validated_orders")
-    return v.filter(col("rejection_reason").isNull()).drop("rejection_reason")
+    # order_date arrives as STRING (Auto Loader's inferColumnTypes doesn't auto-detect
+    # ISO-8601 date-strings as TIMESTAMP) — validate_order's future-date check already
+    # ran on the raw string above (unchanged logic, correct), so it's safe to cast here,
+    # after validation, for the rows that actually proceed to AUTO CDC. Gold's watermark
+    # requires a genuine TIMESTAMP column; a string that merely looks like one fails
+    # with EVENT_TIME_IS_NOT_ON_TIMESTAMP_TYPE.
+    return (v.filter(col("rejection_reason").isNull())
+             .drop("rejection_reason")
+             .withColumn("order_date", col("order_date").cast("timestamp")))
 
 
 # --- AUTO CDC: replaces the hand-built merge-key MERGE from silver_scd2.py, AND
