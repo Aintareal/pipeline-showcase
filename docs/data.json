@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T00:05:26Z",
+  "generated_at": "2026-08-03T00:12:30Z",
   "summary": {
     "order_count_cumulative": 0,
     "order_count_rolling_24h": 0,
@@ -22,12 +22,16 @@
     {
       "item_name": "Trail Runner Backpack",
       "order_count": 1
+    },
+    {
+      "item_name": "Test Widget",
+      "order_count": 1
     }
   ],
   "hourly_volume_24h": [],
   "daily_volume_all_time": [],
   "scd2": {
-    "active_rows": 5,
+    "active_rows": 6,
     "superseded_rows": 0
   }
 }
