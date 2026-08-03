@@ -40,10 +40,20 @@ def run():
         # prune anything older than the rolling window — cheap periodic cleanup, not itself streaming state
         spark.sql(f"DELETE FROM {TBL_GOLD_HOURLY} WHERE hour < current_timestamp() - INTERVAL 24 HOURS")
 
+    # outputMode("update") is required here: the default ("append") only emits a
+    # window once the watermark advances PAST its end — which needs a LATER batch
+    # to trigger, and this job runs one AvailableNow shot then stops, so append
+    # mode would never emit anything (observed live: hourly/daily trend tables
+    # stayed empty despite silver_version_events being populated correctly).
+    # "update" emits a window's current state as soon as it changes; Spark's
+    # aggregation state already holds the full cumulative count for that window
+    # across all batches, so each emission is the complete count, not a delta —
+    # safe to overwrite on MERGE, which upsert_hourly/upsert_daily already do.
     (events.withWatermark("order_date", WATERMARK)
      .groupBy(window("order_date", "1 hour"))
      .agg(count("*").alias("window_count"))
      .writeStream
+     .outputMode("update")
      .option("checkpointLocation", f"{CHECKPOINT_GOLD}/hourly")
      .trigger(availableNow=True)
      .foreachBatch(upsert_hourly)
@@ -63,6 +73,7 @@ def run():
      .groupBy(window("order_date", "1 day"))
      .agg(count("*").alias("window_count"))
      .writeStream
+     .outputMode("update")
      .option("checkpointLocation", f"{CHECKPOINT_GOLD}/daily")
      .trigger(availableNow=True)
      .foreachBatch(upsert_daily)
