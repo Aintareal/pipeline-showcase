@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-08-03T18:27:46Z",
+  "generated_at": "2026-08-04T00:22:04Z",
   "summary": {
-    "order_count_cumulative": 31,
-    "order_count_rolling_24h": 31,
-    "total_amount_cumulative": 2691.91,
-    "avg_order_value_cumulative": 86.83580645161291,
+    "order_count_cumulative": 34,
+    "order_count_rolling_24h": 34,
+    "total_amount_cumulative": 3202.3999999999996,
+    "avg_order_value_cumulative": 94.18823529411765,
     "rejection_count_cumulative": 12,
-    "rejection_rate_cumulative": 0.2791,
+    "rejection_rate_cumulative": 0.2609,
     "rejection_count_rolling_24h": 12,
-    "rejection_rate_rolling_24h": 0.2791
+    "rejection_rate_rolling_24h": 0.2609
   },
   "top_items": [
     {
@@ -34,20 +34,24 @@
   ],
   "hourly_volume_24h": [
     {
-      "hour": "2026-08-02T22:00:00Z",
-      "count": 1
-    },
-    {
-      "hour": "2026-08-03T00:00:00Z",
-      "count": 3
-    },
-    {
       "hour": "2026-08-03T12:00:00Z",
       "count": 1
     },
     {
       "hour": "2026-08-03T13:00:00Z",
       "count": 5
+    },
+    {
+      "hour": "2026-08-03T16:00:00Z",
+      "count": 6
+    },
+    {
+      "hour": "2026-08-03T17:00:00Z",
+      "count": 1
+    },
+    {
+      "hour": "2026-08-03T18:00:00Z",
+      "count": 6
     }
   ],
   "daily_volume_all_time": [
@@ -70,6 +74,6 @@
   ],
   "scd2": {
     "active_rows": 27,
-    "superseded_rows": 6
+    "superseded_rows": 9
   }
 }
