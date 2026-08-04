@@ -1,23 +1,23 @@
 {
-  "generated_at": "2026-08-04T00:22:04Z",
+  "generated_at": "2026-08-04T00:27:45Z",
   "summary": {
-    "order_count_cumulative": 34,
-    "order_count_rolling_24h": 34,
-    "total_amount_cumulative": 3202.3999999999996,
-    "avg_order_value_cumulative": 94.18823529411765,
+    "order_count_cumulative": 37,
+    "order_count_rolling_24h": 37,
+    "total_amount_cumulative": 3712.8899999999994,
+    "avg_order_value_cumulative": 100.34837837837838,
     "rejection_count_cumulative": 12,
-    "rejection_rate_cumulative": 0.2609,
+    "rejection_rate_cumulative": 0.2449,
     "rejection_count_rolling_24h": 12,
-    "rejection_rate_rolling_24h": 0.2609
+    "rejection_rate_rolling_24h": 0.2449
   },
   "top_items": [
     {
       "item_name": "Camp Stove",
-      "order_count": 8
+      "order_count": 9
     },
     {
       "item_name": "Trail Runner Backpack",
-      "order_count": 8
+      "order_count": 9
     },
     {
       "item_name": "Widget A",
@@ -25,7 +25,7 @@
     },
     {
       "item_name": "Fidget Spinner",
-      "order_count": 2
+      "order_count": 3
     },
     {
       "item_name": "Test Gizmo",
@@ -73,7 +73,7 @@
     }
   ],
   "scd2": {
-    "active_rows": 27,
+    "active_rows": 30,
     "superseded_rows": 9
   }
 }
