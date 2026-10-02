@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-10-02T14:22:50Z",
+  "generated_at": "2026-10-02T16:31:28Z",
   "summary": {
-    "order_count_cumulative": 71,
-    "order_count_rolling_24h": 34,
-    "total_amount_cumulative": 9552.749999999996,
-    "avg_order_value_cumulative": 134.5457746478873,
+    "order_count_cumulative": 74,
+    "order_count_rolling_24h": 37,
+    "total_amount_cumulative": 10188.239999999998,
+    "avg_order_value_cumulative": 137.6789189189189,
     "rejection_count_cumulative": 12,
-    "rejection_rate_cumulative": 0.1446,
+    "rejection_rate_cumulative": 0.1395,
     "rejection_count_rolling_24h": 0,
     "rejection_rate_rolling_24h": 0.0
   },
   "top_items": [
     {
       "item_name": "Fidget Spinner",
-      "total_quantity": 180
+      "total_quantity": 215
     },
     {
       "item_name": "Widget A",
@@ -21,11 +21,11 @@
     },
     {
       "item_name": "Camp Stove",
-      "total_quantity": 21
+      "total_quantity": 23
     },
     {
       "item_name": "Trail Runner Backpack",
-      "total_quantity": 13
+      "total_quantity": 14
     },
     {
       "item_name": "Test Gadget",
@@ -73,7 +73,7 @@
     }
   ],
   "scd2": {
-    "active_rows": 40,
+    "active_rows": 43,
     "superseded_rows": 33
   }
 }
